@@ -1,15 +1,14 @@
 package org.jenkinsci.plugins.prometheus.rest;
 
+import static org.junit.Assert.assertEquals;
+
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
-import static org.junit.Assert.assertEquals;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
-import javax.servlet.ServletException;
+import io.prometheus.client.exporter.common.TextFormat;
+import jenkins.metrics.api.Metrics;
+import jenkins.model.Jenkins;
 
 import org.jenkinsci.plugins.prometheus.config.PrometheusConfiguration;
 import org.jenkinsci.plugins.prometheus.service.PrometheusMetrics;
@@ -26,9 +25,11 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import io.prometheus.client.exporter.common.TextFormat;
-import jenkins.metrics.api.Metrics;
-import jenkins.model.Jenkins;
+import javax.servlet.ServletException;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 
 @RunWith(PowerMockRunner.class)
@@ -66,6 +67,29 @@ public class PrometheusActionTest {
         AssertStaplerResponse.from(actual)
                 .call()
                 .assertHttpStatus(HTTP_NOT_FOUND);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenBasicAuthenticationEnabledAndInsufficientPermission()
+            throws IOException, ServletException {
+        // given
+        PrometheusAction action = new PrometheusAction();
+        StaplerRequest request = Mockito.mock(StaplerRequest.class);
+        String url = "prometheus";
+        Mockito.when(request.getRestOfPath()).thenReturn(url);
+        Mockito.when(request.getHeader("Authorization")).thenReturn("Basic Zm9vOmZvbw==");
+        Mockito.when(configuration.isUseBasicAuthenticatedEndpoint()).thenReturn(true);
+        Mockito.when(configuration.getBasicAuthenticationUsername()).thenReturn("foo");
+        Mockito.when(configuration.getBasicAuthenticationPassword()).thenReturn("bar");
+        Mockito.when(jenkins.hasPermission(Metrics.VIEW)).thenReturn(false);
+
+        // when
+        HttpResponse actual = action.doDynamic(request);
+
+        // then
+        AssertStaplerResponse.from(actual)
+                .call()
+                .assertHttpStatus(HTTP_FORBIDDEN);
     }
 
     @Test

@@ -38,6 +38,9 @@ public class PrometheusConfiguration extends GlobalConfiguration {
     private String defaultNamespace = "default";
     private String jobAttributeName = "jenkins_job";
     private boolean useAuthenticatedEndpoint;
+    private boolean useBasicAuthenticatedEndpoint;
+    private String basicAuthenticationUsername;
+    private String basicAuthenticationPassword;
     private Long collectingMetricsPeriodInSeconds = null;
 
     private boolean countSuccessfulBuilds = true;
@@ -64,6 +67,9 @@ public class PrometheusConfiguration extends GlobalConfiguration {
     public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
         setPath(json.getString("path"));
         useAuthenticatedEndpoint = json.getBoolean("useAuthenticatedEndpoint");
+        useBasicAuthenticatedEndpoint = json.getBoolean("useBasicAuthenticatedEndpoint");
+        basicAuthenticationUsername = json.getString("basicAuthenticationUsername");
+        basicAuthenticationPassword = json.getString("basicAuthenticationPassword");
         defaultNamespace = json.getString("defaultNamespace");
         jobAttributeName = json.getString("jobAttributeName");
         countSuccessfulBuilds = json.getBoolean("countSuccessfulBuilds");
@@ -132,6 +138,33 @@ public class PrometheusConfiguration extends GlobalConfiguration {
 
     public void setUseAuthenticatedEndpoint(boolean useAuthenticatedEndpoint) {
         this.useAuthenticatedEndpoint = useAuthenticatedEndpoint;
+        save();
+    }
+
+    public boolean isUseBasicAuthenticatedEndpoint() {
+        return useBasicAuthenticatedEndpoint;
+    }
+
+    public void setUseBasicAuthenticatedEndpoint(boolean useBasicAuthenticatedEndpoint) {
+        this.useBasicAuthenticatedEndpoint = useBasicAuthenticatedEndpoint;
+        save();
+    }
+
+    public String getBasicAuthenticationUsername() {
+        return basicAuthenticationUsername;
+    }
+
+    public void setBasicAuthenticationUsername(String basicAuthenticationUsername) {
+        this.basicAuthenticationUsername = basicAuthenticationUsername;
+        save();
+    }
+
+    public String getBasicAuthenticationPassword() {
+        return basicAuthenticationPassword;
+    }
+
+    public void setBasicAuthenticationPassword(String basicAuthenticationPassword) {
+        this.basicAuthenticationPassword = basicAuthenticationPassword;
         save();
     }
 
