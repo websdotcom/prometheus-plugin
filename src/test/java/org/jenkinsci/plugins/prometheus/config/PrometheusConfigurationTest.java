@@ -1,9 +1,14 @@
 package org.jenkinsci.plugins.prometheus.config;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+
 import hudson.model.Descriptor;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import net.sf.json.JSONObject;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -14,10 +19,6 @@ import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 
 @RunWith(JUnitParamsRunner.class)
 public class PrometheusConfigurationTest {
@@ -124,6 +125,9 @@ public class PrometheusConfigurationTest {
         JSONObject config = new JSONObject();
         config.accumulate("path", "prometheus");
         config.accumulate("useAuthenticatedEndpoint", "true");
+        config.accumulate("useBasicAuthenticatedEndpoint", "false");
+        config.accumulate("basicAuthenticationUsername", "default");
+        config.accumulate("basicAuthenticationPassword", "default");
         config.accumulate("defaultNamespace", "default");
         config.accumulate("jobAttributeName", "jenkins_job");
         config.accumulate("countSuccessfulBuilds", "true");
